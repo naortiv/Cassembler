@@ -2,25 +2,25 @@
 #include "struct.h"
 #include "external_vars.h"
 
-/* In this file we have all functions regarding the linked list of extern labels */
+/*This file has all the functions that are responsible for linked lists of extern labels */
 
-/* This function adds a node to the end of the list */
+/* Add a node to end's list */
 extPtr add_ext(extPtr* lptr, char* name, unsigned int reference) {
 
     extPtr t = *lptr;
     extPtr temp;
 
     temp = (extPtr)malloc(sizeof(ext));
-    if (!temp)
+    if (!temp)/*if there's problam to malloc a meory*/
     {
-        printf("\nerror, cannot allocate memory\n");
+        printf("\nError, problam in allocate memory\n");
         exit(1);
     }
 
     temp->address = reference;
     strcpy(temp->name, name);
 
-    if (!(*lptr)) /* If the list is empty */
+    if (!(*lptr)) /* If it's empty list*/
     {
         *lptr = temp;
         temp->next = temp;
@@ -36,7 +36,7 @@ extPtr add_ext(extPtr* lptr, char* name, unsigned int reference) {
     return temp;
 }
 
-void print_ext(extPtr* lptr) {	
+void print_ext(extPtr* lptr) {	/*print ext linked list*/
     int add= (*lptr)->address;
     do{
         printf("\n %s %d\n",(*lptr)->name,(*lptr)->address);
@@ -46,10 +46,10 @@ void print_ext(extPtr* lptr) {
 }
 
 
-/* This function frees the allocated memory for the list */
+/* free the allocated memory of the list */
 void free_ext(extPtr* lptr) {
 
-    /* Frees the extern list by going over each extern node and free it*/
+    /* free each node in the list by going over it*/
     extPtr temp = *lptr;
     if (temp) {
         unsigned int last_reference = ((*lptr)->prev)->address;
