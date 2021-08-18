@@ -3,22 +3,22 @@
 #include "scanFunctions.h"
 #include "functions.h"
 
-/* In this file we have functions that are in use for all the program */
+/*This file include functions for all program use*/ 
 
 /*********functions for main**********/
 
-/* This function creates a filename */
+/* Function for creates the filename */
 char* create_file_name(char* original, int type) {
-    char* modified = (char*)malloc(strlen(original) + 1); /* Add space for the part after the "." */
+    char* modified = (char*)malloc(strlen(original) + 1); /* A memory will be assigned for the part after the "." */
     char* tmp;
-    if (modified == NULL)
+    if (modified == NULL)/*if there is a problem at malloc*/
     {
-        fprintf(stderr, "Couldn't allocate memory.");
+        fprintf(stderr, "Problem at the allocation of memory.");
         exit(ERROR);
     }
     
-    strcpy(modified, original); /* Copying original filename to the bigger string */
-    tmp = strchr(modified,'.');/* Cut .as extention */
+    strcpy(modified, original); /* Copying file name to a bigger string */
+    tmp = strchr(modified,'.');/* Cut .as end */
     *tmp='\0';
     /* add filetype extension */
     switch (type)
@@ -37,7 +37,7 @@ char* create_file_name(char* original, int type) {
     return modified;
 }
 
-/* Checks if the line is empty or needs to be ignored (;) */
+/* Checks if it's empty line or line needs to be ignored (;) */
 int ignore_line(char* line) {
     line = skip_spaces(line);
     if (*line == ';' || *line == '\0' || *line == '\n') {
@@ -46,7 +46,7 @@ int ignore_line(char* line) {
     return FALSE;
 }
 
-/* This function check if the 'error' flag was changed meaning that an error while reading the line occured */
+/*This function check if was a error , and sign the errors's flag*/
 int if_error() {
 
     if (error != EMPTY_ERROR)
@@ -55,51 +55,51 @@ int if_error() {
         return 0;
 }
 
-/* This function skips spaces (blanks)*/
+/* This function skips white space*/
 char* skip_spaces(char* ch) {
 
     if (ch == NULL) 
         return NULL;
-    while (isspace(*ch))/* While the current char is a space we will continue to the next one */
+    while (isspace(*ch))/* Skip a white char */
         ch++;
-    return ch;/* Return the first non space char */
+    return ch;/* Return if isn't a white char  */
 }
 
-/* Checking if end of line reached */
+/* Checking if it's end of  line */
 int end_of_line(char* line) {
 
     return (line == NULL || *line == '\0' || *line == '\n');
 }
 
-/* Copies the next word from line to destination */
+/* Copies the next word from the line to the destination */
 void copy_word(char* destination, char* line) {
 
     int i = 0;
-    if (destination == NULL || line == NULL) 
+    if (destination == NULL || line == NULL) /*If one of them is not defined*/
         return;
 
-    while (i < MAX_INPUT && !isspace(line[i]) && line[i] != '\0') /* Copying token until its end to *dest */
+    while (i < MAX_INPUT && !isspace(line[i]) && line[i] != '\0') /* Copy the line to *dest */
     {
         destination[i] = line[i];
         i++;
     }
-    destination[i] = '\0'; /* Add end of string */
+    destination[i] = '\0'; /* Add ending to the string */
 }
 
-/* This function extracts bits, given start and end positions of the bit-sequence (0 is LSB) */
+/* This function extracts bits */
 unsigned int extract_bits(unsigned int word, int start, int end) {
 
     unsigned int result;
-    int length = end - start + 1; /* Length of bit-sequence */
-    unsigned int mask = (int)pow(2, length) - 1; /* Creating a '111...1' mask with above line's length */
+    int length = end - start + 1; /* Length bit-sequence */
+    unsigned int mask = (int)pow(2, length) - 1; /* Creating a '111...1' mask */
 
-    mask <<= start; /* Moving mask to place of extraction */
+    mask <<= start; /* Moving mask to the location of extraction */
     result = word & mask; /* The bits are now in their original position, and the rest is 0's */
     result >>= start; /* Moving the sequence to LSB */
     return result;
 }
 
-/* decode  to hex */
+/* Divite int  to hex */
 unsigned int int_to_hex(unsigned int word,int i) {
     int j= word;
     j= (word>>(8*i)) & 0xff;
@@ -107,58 +107,58 @@ unsigned int int_to_hex(unsigned int word,int i) {
 }
 
 
-/* This function checks if a word is a label or not */
+/* Check if it's a label word */
 boolean is_label(char* word, int colon) {
 
-    boolean has_digits = FALSE; /* helps check if it's a command */
+    boolean has_digits = FALSE; /* If it's has a digits it's can be a command */
     int word_len = strlen(word);
     int i;
 
-    /* Checking if token's length is not too short */
+    /* Check if the length isn't too short */
     if (colon == TRUE) {
-        if (word == NULL || word_len < 2) /* With a colon the min length for a label is 2 */
-            return FALSE;
+        if (word == NULL || word_len < 2) /* If colon ,2 is the min lengths label*/
+            return FALSE; 
     }
 
     if (colon && (word[word_len - 1] != ':'))
-        return FALSE; /* If colon = TRUE, there must be a colon at the end */
+        return FALSE; /* If colon , must be a colon at the end */
 
     if (word_len > MAX_LABEL) {
         if (colon) {
-            error = LABEL_TOO_LONG; /* Max length 32 */
+            error = LABEL_TOO_LONG; /* Max length label is 32 */
         }
         return FALSE;
     }
     if (!isalpha(*word)) {
         if (colon) {
-            error = LABEL_INVALID_FIRST_CHAR;/* First character must be a letter */
+            error = LABEL_INVALID_FIRST_CHAR;/* First char must be a letter */
         }
         return FALSE;
     }
 
-    if (colon) { /* Remove the colon */
+    if (colon) { /* Remove colon */
         word[word_len - 1] = '\0';
         word_len--;
     }
 
-    /* Check if all characters are digits or letters */
+    /* Check if all the charcters are digits or letters */
     for (i = 0; i < word_len; i++)
     {
         if (isdigit(word[i]))
             has_digits = TRUE;
     }
 
-    if (!has_digits) /* It can't be a command */
+    if (!has_digits) /* If there not digits it can't be a command */
     {
         if (find_command(word) != NO_MATCH) {
             if (colon) {
-                error = LABEL_CANT_BE_COMMAND; /* Label can't have the same name as a command */
+                error = LABEL_CANT_BE_COMMAND; /* Label can't be a command name */
             }
             return FALSE;
         }
     }
 
-    if (is_register(word)) /* Label can't have the same name as a register */
+    if (is_register(word)) /* Label can't be a register name */
     {
         if (colon) {
             error = LABEL_CANT_BE_REGISTER;
@@ -166,27 +166,27 @@ boolean is_label(char* word, int colon) {
         return FALSE;
     }
 
-    return TRUE; /* Its a label! */
+    return TRUE; /* Its a label */
 }
 
-/* This function gets next word */
+/* gets next word */
 char* next_word(char* seq) {
 
     if (seq == NULL)
         return NULL;
-    while (!isspace(*seq) && !end_of_line(seq)) {/* Skip rest of characters in the current token (until a space) */
+    while (!isspace(*seq) && !end_of_line(seq)) {/* Skip characters while aren't space or end of line  */
         seq++; 
     }
-    seq = skip_spaces(seq); /* Skip spaces */
+    seq = skip_spaces(seq); /* Skip white space */
     if (end_of_line(seq)) {
         return NULL;
     }
     return seq;
 }
 
-/* Check if a token matches a register name */
+/* Check if the word is register name */
 boolean is_register(char* word) {
-    /* the first is '$' and the number between 0-31 */
+    /* check if the first char is '$' and the register num between 0-31 */
     if (word[0] == '$') {
         int r = find_reg_number(word);
         if(0<=r && r<32)
@@ -199,20 +199,20 @@ boolean is_register(char* word) {
     else return FALSE;      
 }
 
-/* Finds registers number */
+/* Find the register num */
 int find_reg_number(char* word) {
     int number = -1;
     if (word[0] == '$')
     {
         word++;
-        if(is_number(word)){
+        if(is_number(word)){/*divite to a digits*/
             number = atoi(word);
         }
     }
     return number;
 }
 
-/* This function finds an index of a string in an array of strings */
+/*Finds an index of a string in an strings array */
 int find_index(char* word, const char* arr[], int n) {
     int i;
     for (i = 0; i < n; i++)
@@ -222,69 +222,69 @@ int find_index(char* word, const char* arr[], int n) {
     return NO_MATCH;
 }
 
-/* Check if a token matches a directive name */
+/* Check if the word is a guidance */
 int find_guidance(char* word) {
     if (word == NULL || *word != '.') {
         return NO_MATCH;
-    }/* We have 6 guidance commands, check index number in enum */
+    }/* Check in unum of guidance if the num there*/
     return find_index(word, guidance, 6);
 }
 
-/* Check if a word matches a command name */
+/* Check if the word is a command */
 int find_command(char* word) {
 
     int enum_index;
     int word_len = strlen(word);
-    if (word_len > 4 || word_len < 2)/* A command is between 2 and 4 chars */
+    if (word_len > 4 || word_len < 2)/* A command must be between 2 and 4 chars */
         return NO_MATCH;
     else
         enum_index = find_index(word, commands, NUMBER_OF_COMMANDS); 
     return enum_index;
 }
 
-/* Copies the next word to the destination */
+/* Copies the next word to dest array */
 char* next_list_word(char* dest, char* line) {
 
     char* temp = dest;
 
-    if (end_of_line(line)) /* If the given line is empty, copy an empty word */
+    if (end_of_line(line)) /* If it's empty line, copy an empty word */
     {
         dest[0] = '\0';
         return NULL;
     }
 
-    if (isspace(*line)) /* If there are spaces in the beginning of the word, skip them */
+    if (isspace(*line)) /* If the word start with white spaces , skip them */
         line = skip_spaces(line);
 
-    if (*line == ',') /* A comma deserves a separate, single-character word */
+    if (*line == ',') /* if it's a ',' */
     {
         strcpy(dest, ",");
         return ++line;
     }
 
-    /* Manually copying word until a ',', whitespace or end of line */
+    /* Copy the word until is a ',', white space or line end */
     while (!end_of_line(line) && *line != ',' && !isspace(*line))
     {
         *temp = *line;
         temp++;
         line++;
     }
-    *temp = '\0'; /* Adding end of string */
+    *temp = '\0'; /* Add end to the word*/
 
     return line;
 }
 
-/* Checks if number, also with +/- signs */
+/* Checks if it's a num ( can be with a +/- signs) */
 boolean is_number(char* seq) {
     if (end_of_line(seq)) 
         return FALSE;
-    if (*seq == '+' || *seq == '-') {/* A number can contain a plus or minus word */
+    if (*seq == '+' || *seq == '-') {/*check if there is a +/- sign*/
         seq++;
-        if (!isdigit(*seq++)) 
-            return FALSE; /* But not only a word */
+        if (!isdigit(*seq++))/*check if isn't a digit*/ 
+            return FALSE; 
     }
 
-    /* Check that the rest of the token is made of digits */
+    /* Check until the end if are's a digits*/
     while (!end_of_line(seq)) {
         if (!isdigit(*seq++)) return FALSE;
     }
@@ -292,7 +292,7 @@ boolean is_number(char* seq) {
 }
 
 
-/* Copies next string into destination */
+/* Copies next string to dest */
 char* next_word_string(char* dest, char* line) {
 
     char temp[MAX_INPUT];
@@ -307,43 +307,43 @@ char* next_word_string(char* dest, char* line) {
     return line;
 }
 
-/* This function checks if a given sequence is a valid string (wrapped with "") */
+/* Checks if the sequence is a valid string (with "") */
 boolean is_string(char* string) {
 
     if (string == NULL)
         return FALSE;
 
-    if (*string == '"') /* Starts with " */
+    if (*string == '"') /* Start with " */
         string++;
     else
         return FALSE;
 
-    while (*string && *string != '"') { /* Goes until end of string */
+    while (*string && *string != '"') { /*  loop until the end of string */
         string++;
     }
 
-    if (*string != '"') /* A string must end with " */
+    if (*string != '"') /* check the string end with " */
         return FALSE;
 
     string++;
-    if (*string != '\0') /* String token must end after the ending " */
+    if (*string != '\0') /* check that the string isn't continue after the '"' */
         return FALSE;
 
-    return TRUE; /* It's a string! */
+    return TRUE; /* return it's a string */
 }
 
-/* This function encodes a given string to data_image */
+/* If it's a string add to data_image */
 void add_string_to_data_image(char* str) {
 
     while (!end_of_line(str))
     {
-        data_image[dc++] = *str; /* Inserting a character to data_image array */
+        data_image[dc++] = *str; /* Insert a char to data_image array */
         str++;
     }
-    data_image[dc++] = '\0'; /* Insert a null character to data_image */
+    data_image[dc++] = '\0';
 }
 
-/* This function inserts a given machine_code to instructions_image memory */
+/* Inserts this machine_code to instructions_image memory */
 void add_to_instructions_image(unsigned int machine_code) {
 
     instructions_image[ic] = machine_code;
@@ -361,7 +361,7 @@ void print_error(int line_number) {
         break;
 
     case LABEL_ALREADY_EXISTS:
-        fprintf(stderr, "label already exists.\n");
+        fprintf(stderr, "this label already exists.\n");
         break;
 
     case LABEL_TOO_LONG:
