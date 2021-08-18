@@ -19,7 +19,7 @@ labelPtr symbols_table;
 extPtr ext_list;
 boolean entry_exists, extern_exists, error_exist;
 
-/* The fucnction that resets all flags for next file */
+/* This fucnction resets all flags for next file */
 void reset_flags() {
     symbols_table = NULL;
     ext_list = NULL;
