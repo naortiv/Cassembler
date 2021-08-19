@@ -100,10 +100,10 @@ void  line_first_scan(char* line) {
         error = MISSING_SYNTAX;/* if there isn't a command or a guidance in this line*/  
 }
 
-/* This function handles guidances (.dh, .dw, .db, .asciz, .entry, .extern) and sends them to the correct functions for analizing */
+/* This function get the guidance and send it to the function of it  */
 int handle_guidance(int guidance_type, char* line) {
 
-    if (line == NULL || end_of_line(line)) /* At least one parameter must fllow a guidance */
+    if (line == NULL || end_of_line(line)) /* Must be a parameter after the  guidance */
     {
         error = NO_PARAMETER_AVAILABLE;
         return ERROR;
@@ -114,16 +114,16 @@ int handle_guidance(int guidance_type, char* line) {
     case DH:
     case DW:
     case DB:
-        /* Handle .dh/.dw/db - add  characters to memory */
+        /* Handle .dh/.dw/db */
         return handle_dtypes_guidance(line, guidance_type);
 
     case ASCIZ:
-        /* Handle .string guidance and insert all characters (including a '\0') to memory */
+        /* Handle .asciz guidance*/
         return handle_asciz_guidance(line);
 
     case ENTRY:
-        /* Only check for syntax of entry (should not contain more than one parameter) */
-        if (!end_of_line(next_word(line))) /* If there's a next word (after the first one) */
+        /* Check syntax of entry (can contain only one parameter) */
+        if (!end_of_line(next_word(line))) /* If there's more than one word */
         {
             error = GUIDANCE_INVALID_NUM_PARAMS;
             return ERROR;
@@ -137,32 +137,32 @@ int handle_guidance(int guidance_type, char* line) {
     return EMPTY_ERROR;
 }
 
-/* This function handels .data_image guidance and encodes it to data_image */
+/* This function d types guidance and encodes it to data_image */
 int handle_dtypes_guidance(char* line,int guidance_type)
 {
-    char word[MAX_INPUT]; /* Holds word */
-    /* Flags to verify that there is a seperation between the diffrent numbers using a comma */
+    char word[MAX_INPUT]; /* save word */
+    /* flage for check if there is a comma between the numbers */
     boolean number = FALSE;
     boolean comma = FALSE;
 
-    while (!end_of_line(line)) /* checks if end of line */
+    while (!end_of_line(line)) /* checks if it the end of the line */
     {
-        line = next_list_word(word, line); /* Getting current word */
+        line = next_list_word(word, line); /* get word */
 
-        if (strlen(word) > 0) /* Not an empty word */
+        if (strlen(word) > 0) /* if isn't empty word */
         {
-            if (number == FALSE) { /* If there wasn't a number before */
+            if (number == FALSE) { /* if is the first word */
                 signed long parameter= atoi(word);
-                signed long limit = pow( 2 , guidance_type*8 -1)-1;
-                if (is_number(word) == FALSE) { /* Then the word must be a number */
+                signed long limit = pow( 2 , guidance_type*8 -1)-1;/*the limit of i bytes*/
+                if (is_number(word) == FALSE) { /* check if the word is number */
                     error = DATA_EXPECTED_NUM;
                     return ERROR;
                 }
                 if (parameter<limit && parameter>=-limit)
                 {
                     add_num_to_data_image(parameter,guidance_type);
-                    number = TRUE; /* A valid number was inputted */
-                    comma = FALSE; /* Resetting comma (now it is needed) */
+                    number = TRUE; /* if it's valid number */
+                    comma = FALSE; /* comma stay FALSE because is the firs number */
                 }
                 else {
                     error =GUIDANCE_INVALID_NUM_PARAMS;
@@ -170,13 +170,13 @@ int handle_dtypes_guidance(char* line,int guidance_type)
                 }
             }
 
-            else if (*word != ',') /* If there was a number, now a comma is needed */
+            else if (*word != ',') /* if there number/s before */
             {
                 error = DATA_EXPECTED_COMMA_AFTER_NUM;
                 return ERROR;
             }
 
-            else /* If there was a comma, it should be only once (comma should be false) */
+            else /* check if have only one comma , comma must come FALSE */
             {
                 if (comma == TRUE) {
                     error = DATA_COMMAS_IN_A_ROW;
@@ -198,21 +198,21 @@ int handle_dtypes_guidance(char* line,int guidance_type)
     return EMPTY_ERROR;
 }
 
-/* This function handles a .string guidance and encoding it to data_image */
+/* process .asciz guidance and encoding it to data_image */
 int handle_asciz_guidance(char* line)
 {
     char word[MAX_INPUT];
     line = next_word_string(word, line);
-    if (!end_of_line(word) && is_string(word)) { /* If word exists and it's a valid string */
+    if (!end_of_line(word) && is_string(word)) { /* check if there is a word and it a string */
         line = skip_spaces(line);
-        if (end_of_line(line)) /* If there's no additional word */
+        if (end_of_line(line)) /* end of line */
         {
-            /* "Cutting" quotation marks and encoding it to data_image */
+            /* remove a quote mark and encoding it to data_image */
             word[strlen(word) - 1] = '\0';
             add_string_to_data_image(word + 1);
         }
 
-        else /* There's another word */
+        else /* if have word after the string */
         {
             error = STRING_TOO_MANY_OPERANDS;
             return ERROR;
@@ -227,18 +227,18 @@ int handle_asciz_guidance(char* line)
     return EMPTY_ERROR;
 }
 
-/* This function handles an .extern guidance */
+/* This function process an .extern guidance */
 int handle_extern_guidance(char* line) {
-    char word[MAX_LABEL]; /* This will hold the required label */
+    char word[MAX_LABEL]; /* get the label */
 
-    copy_word(word, line); /* Getting the next word */
-    if (end_of_line(word)) /* If the word is empty, then there's no label */
+    copy_word(word, line); /* get word */
+    if (end_of_line(word)) /* empty word , have no label */
     {
         error = EXTERN_NO_LABEL;
         return ERROR;
     }
 
-    if (!is_label(word, FALSE)) /* The word should be a label (without a colon) */
+    if (!is_label(word, FALSE)) /* check if it's a label (without a colon) */
     {
         error = EXTERN_INVALID_LABEL;
         return ERROR;
@@ -251,13 +251,13 @@ int handle_extern_guidance(char* line) {
         return ERROR;
     }
 
-    /* Trying to add the label to the symbols table */
+    /* Try add the label to symbols table */
     if (add_label(&symbols_table, word, 0, TRUE) == NULL)
         return ERROR;
-    return if_error(); /* Error code might be 1 if there was an error in is_label() */
+    return if_error(); /* error in is_label() */
 }
 
-/* This function handels commands and encodes to words */
+/* This function process commands and encodes it to words */
 int handle_command(int type, char* line) {
 
     boolean is_first = FALSE,is_second = FALSE,is_third = FALSE; /* These booleans will tell which of the operands were received*/
