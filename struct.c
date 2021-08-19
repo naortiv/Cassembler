@@ -4,11 +4,11 @@
 
 /*struct functions*/
 
-/*This function adds a label to the label table*/
+/*add the label to symbol tabel*/
 labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean external, ...) {
 	va_list p;
 	labelPtr t = *lptr;
-	labelPtr temp; /* variable to store the info of the label and add to the list */
+	labelPtr temp; /* varibal for the label , add it to symbol table */
 
 	if (is_existing_label(*lptr, name))
 	{
@@ -16,19 +16,19 @@ labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean ext
 		return NULL;
 	}
 	temp = (labelPtr)malloc(sizeof(Labels));
-	if (!temp) /*if we couldn't allocate memory to temp then print an error massage and exit the program*/
+	if (!temp) /*problem in allocate memory to temp ,print an error massage and exit the program*/
 	{
 		error = MEMORY_ALLOCATION_FAILED;
 		return NULL;
 	}
 
-	/* Storing the info of the label in temp */
+	/* copy label info to temp */
 	strcpy(temp->name, name);
 	temp->entry = FALSE;
 	temp->address = address;
 	temp->external = external;
 
-	if (!external) /* An external label can't be in an action statement */
+	if (!external) /* An external label cant be in opcodes*/
 	{
 		va_start(p, external);
 		temp->command_line = va_arg(p, boolean);
@@ -38,7 +38,7 @@ labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean ext
 		extern_exists = TRUE;
 	}
 
-	/* If the list is empty then we set the head of the list to be temp */
+	/* If it empty list, temp will be the head */
 	if (!(*lptr))
 	{
 		*lptr = temp;
@@ -46,7 +46,7 @@ labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean ext
 		return temp;
 	}
 
-	/* Setting a pointer to go over the list until he points on the last label and then stting temp to be the new last label */
+	/* pointer to the list */
 	while (t->next != NULL)
 		t = t->next;
 	temp->next = NULL;
@@ -56,7 +56,7 @@ labelPtr add_label(labelPtr* lptr, char* name, unsigned int address, boolean ext
 	return temp;
 }
 
-/* This functions sets the correct address for the label (memory starts at 100) */
+/* add adress for the label */
 void offset_address(labelPtr l, int num, boolean is_data) {
 	while (l)
 	{
@@ -68,7 +68,7 @@ void offset_address(labelPtr l, int num, boolean is_data) {
 	}
 }
 
-/* This function sets the bool var of an existing entry to true */
+/* if ther is existing entry sign it */
 int entry_insert(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
 	if (label != NULL)
@@ -79,7 +79,7 @@ int entry_insert(labelPtr l, char* name) {
 			return FALSE;
 		}
 		label->entry = TRUE;
-		entry_exists = TRUE; /* Global variable that holds that there was at least one entry in the program */
+		entry_exists = TRUE; /* if there is at least one entry in the program sign it */
 		return TRUE;
 	}
 	else
@@ -87,7 +87,7 @@ int entry_insert(labelPtr l, char* name) {
 	return FALSE;
 }
 
-/* This function gets the label address */
+/* gets the label address */
 unsigned int get_label_address(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
 	if (label != NULL) {
@@ -96,7 +96,7 @@ unsigned int get_label_address(labelPtr l, char* name) {
 	else return FALSE;
 }
 
-/* This function checks if the label is external */
+/* check if it is external label */
 boolean is_external_label(labelPtr l, char* name) {
 	labelPtr label = get_label(l, name);
 	if (label != NULL) {
@@ -105,13 +105,13 @@ boolean is_external_label(labelPtr l, char* name) {
 	else return FALSE;
 }
 
-/* This function checks if the label already exists */
+/* check if this label already exists */
 boolean is_existing_label(labelPtr l, char* name) {
 	
 	return (get_label(l, name) != NULL);
 }
 
-/* This function gets the label */
+/* gets the label */
 labelPtr get_label(labelPtr l, char* name) {
 	
 	while (l) {
@@ -122,7 +122,7 @@ labelPtr get_label(labelPtr l, char* name) {
 	return NULL;
 }
 
-/* This function frees the label list */
+/* free the label list */
 void free_label_table(labelPtr * lptr) {
 		
 	labelPtr temp;
@@ -134,7 +134,7 @@ void free_label_table(labelPtr * lptr) {
 		}
 }
 
-/* This function delets label in the label list in case we entered a wrong label */
+/* if entered a wrong labal, delets in the label list */
 int delete_label(labelPtr * lptr, char* name) {
 	labelPtr temp = *lptr;
 	labelPtr prevtemp;
