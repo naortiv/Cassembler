@@ -23,15 +23,7 @@ void scanOne(FILE* fp) {
         line_number++;
     }
     offset_address(symbols_table,ic*4+DEFAULT_IC,TRUE);
-    /*
-    print_table(&symbols_table);
-    int i=0;
-    while (instructions_image[i]!=NULL)
-    {
-        printf("\n%d %d\n",i,instructions_image[i]);
-        i++;
-    }*/
-} 
+  } 
 
 /* The function that reads each line and checks it */
 void  line_first_scan(char* line) {
@@ -160,13 +152,13 @@ int handle_dtypes_guidance(char* line,int guidance_type)
         if (strlen(word) > 0) /* Not an empty word */
         {
             if (number == FALSE) { /* If there wasn't a number before */
-                int parameter= atoi(word);
-                long limit = pow( 2 , guidance_type*8 -1);
+                signed long parameter= atoi(word);
+                signed long limit = pow( 2 , guidance_type*8 -1)-1;
                 if (is_number(word) == FALSE) { /* Then the word must be a number */
                     error = DATA_EXPECTED_NUM;
                     return ERROR;
                 }
-                if ((-limit)<=parameter && parameter<limit)
+                if (parameter<limit && parameter>=-limit)
                 {
                     add_num_to_data_image(parameter,guidance_type);
                     number = TRUE; /* A valid number was inputted */
