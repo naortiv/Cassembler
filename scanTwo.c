@@ -127,7 +127,7 @@ void creat_object_file(FILE* fp) {
 	unsigned int address = DEFAULT_IC;/*start of memory*/
 	int i;
 	int byte1, byte2, byte3, byte4;
-	fprintf(fp, "\t%d\t%d\n", (ic)*4, dc); /* First line */
+	fprintf(fp, "     %d %d\n", (ic)*4, dc); /* First line */
 	for (i = 0; i < ic; address+=4, i++) /* Instructions memory */
 	{
 		 
