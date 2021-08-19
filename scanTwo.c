@@ -6,57 +6,57 @@
 
 void scanTwo(FILE* fp, char* filename) {
 
-	char line[MAX_INPUT];/* Read each line */
-	int line_number = 1;/* Line numbering for error messages */
-	ic = 0; /* Sets ic back to 0 so we can follow the additional word to set */
+	char line[MAX_INPUT];
+	int line_number = 1;/* number of line for error */
+	ic = 0; /* return ic to 0 , follow the additional word to set */
 
 	while (fgets(line, MAX_INPUT, fp) != NULL) {
 		error = EMPTY_ERROR;
-		if (!ignore_line(line)) {/* Checks if needs to ignore line */
+		if (!ignore_line(line)) {/* Check if to ignore line */
 			line_secend_scan(line);
 		}
 		
 		if (if_error()) {
-			error_exist = TRUE; /* There was at least one error through all the program in the second pass */
-			print_error(line_number); /* Print the error */
+			error_exist = TRUE; /* sign if there is a error in scanTwo */
+			print_error(line_number); 
 		}
 		line_number++; 
 	}
 	
-	if (!error_exist) { /* No errors found int the file */
+	if (!error_exist) { /* No errors in scanTwo */
 		creat_output_files(filename); /* creating files */
 	}
-	free_label_table(&symbols_table); /* Free label table */
-	free_ext(&ext_list); /* Free external table */
+	free_label_table(&symbols_table); /* free symbol table */
+	free_ext(&ext_list); /* free external table */
 }
 
-/* The function that reads each line and checks it */
+/* check and read line by line */
 void line_secend_scan(char* line) {
 	
 	int guidance_type, command_type;
 	char current_word[MAX_INPUT];
 
-	line = skip_spaces(line); /* Skip spaces */
-	if (end_of_line(line)) /* Checks if end of line reached */
+	line = skip_spaces(line); /* if there is a white space-skip */
+	if (end_of_line(line)) /* Checks line end */
 		return;
 
-	copy_word(current_word, line); /* Copy word from the line */
-	if (is_label(current_word, COLON)) {/* Check how to creat the seperation with the ':' */
+	copy_word(current_word, line); /* Copy word by word */
+	if (is_label(current_word, COLON)) {/* check if it's a label */
 		line = next_word(line);
-			copy_word(current_word, line); /* Copy next word */
+			copy_word(current_word, line); /* Copy word */
 	}
 
-	if ((guidance_type = find_guidance(current_word)) != NO_MATCH) /* We need to handle only .entry directive */
+	if ((guidance_type = find_guidance(current_word)) != NO_MATCH) /* if it's .entry guidance, process it */
 	{
 		line = next_word(line);
 			if (guidance_type == ENTRY)
 			{
 				copy_word(current_word, line);
-				entry_insert(symbols_table, current_word); /* Sets the bool of entry exists to TRUE */
+				entry_insert(symbols_table, current_word); /* if it's entry sign entry_exists TRUE */
 			}
 	}
 
-	else if ((command_type = find_command(current_word)) != NO_MATCH) /* Encoding command's additional words if necessary */
+	else if ((command_type = find_command(current_word)) != NO_MATCH) /* Encoding command's additional words if need */
 	{
 		char operand[20];  
 		int address =0;
@@ -74,7 +74,7 @@ void line_secend_scan(char* line) {
 		}
 		else if(command_label_check(command_type)==2){
 			int i;
-			for (i = 0; i < 5; i++) /* pass until third operand*/
+			for (i = 0; i < 5; i++) /* skip to third operand*/
 			{
 				line = next_list_word(operand, line);
 			}
@@ -109,11 +109,11 @@ int creat_output_files(char* name) {
 	return EMPTY_ERROR; /* No errors found during the passes */
 }
 
-/* Opens the file with the correct permissions */
+/* opens files */
 FILE* open_file(char* filename, int type) {
 	FILE* file;
-	filename = create_file_name(filename, type); /* Creating filename with extension */
-	file = fopen(filename, "w"); /* Opening file with permissions */
+	filename = create_file_name(filename, type); /* Creating filename with the correct extension */
+	file = fopen(filename, "w"); /* Opening file*/
 	if (file == NULL)
 	{
 		error = CANNOT_OPEN_FILE;
@@ -124,11 +124,11 @@ FILE* open_file(char* filename, int type) {
 
 /* Creating ob file */
 void creat_object_file(FILE* fp) {
-	unsigned int address = DEFAULT_IC;/*start of memory*/
+	unsigned int address = DEFAULT_IC;/*reset to the first ic memory*/
 	int i;
 	int byte1, byte2, byte3, byte4;
-	fprintf(fp, "     %d %d\n", (ic)*4, dc); /* First line */
-	for (i = 0; i < ic; address+=4, i++) /* Instructions memory */
+	fprintf(fp, "     %d %d\n", (ic)*4, dc); /* First line icf and dcf */
+	for (i = 0; i < ic; address+=4, i++) /* instructions memory */
 	{
 		 
 		byte1 = int_to_hex(instructions_image[i],0);
@@ -146,7 +146,7 @@ void creat_object_file(FILE* fp) {
 		if (i%4==3)
 			fprintf(fp, "\n");
 	}
-	fclose(fp); /* Closing file to avoide reching maximum number of open files allowed */
+	fclose(fp); 
 }
 
 /* Creating entry file */
@@ -161,7 +161,7 @@ void creat_entry_file(FILE* fp) {
 		label = label->next;
 	}
 
-	fclose(fp);/* Closing file to avoide reching maximum number of open files allowed */
+	fclose(fp);
 }
 
 /* Creating extern file */
@@ -173,13 +173,13 @@ void creat_external_file(FILE* fp) {
         label = label->next;
     } while (label->address!=add);
 
-	fclose(fp);/* Closing file to avoide reching maximum number of open files allowed */ 
+	fclose(fp); 
 }
 
-/* Determine if need to check for label */
+/* if need to check label */
 int command_label_check(int type) {
 	switch (type) {
-	/* These commands dont need any process */
+	/* the commands that don't need process */
     case ADD:
     case SUB:
     case AND:
@@ -210,7 +210,7 @@ int command_label_check(int type) {
 		return 1;
 		break;
 	
-	/* These operands need to check for process needed */
+	/* need to check these opcodes */
 	case BEQ:
 	case BNE:
 	case BLT:
