@@ -5,9 +5,9 @@
 #include "assembler.h"
 #include "struct.h"
 
-/*This file includes all functions from the  file passes*/
+/*Functions that used in first and second passes*/
 
-/***********first scan fuctions***********/
+/***********scanOne fuctions***********/
 void scanOne(FILE* fp);
 void line_first_scan(char* line);
 int handle_guidance(int guidance_type, char* line);
@@ -24,7 +24,7 @@ int num_words(int method);
 int find_funct(int commands);
 int find_opcode(int type);
 
-/***********secend scan fuctions***********/
+/***********scanTwo fuctions***********/
 void scanTwo(FILE* fp, char* filename);
 void line_secend_scan(char* line);
 int creat_output_files(char* name);
