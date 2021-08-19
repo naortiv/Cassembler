@@ -357,27 +357,27 @@ void print_error(int line_number) {
     switch (error)
     {
     case INVALID_SYNTAX:
-        fprintf(stderr, "first non-blank character must be a letter or a dot.\n");
+        fprintf(stderr, "the first character after white characters must be a alphanumeric or a dot.\n");
         break;
 
     case LABEL_ALREADY_EXISTS:
-        fprintf(stderr, "this label already exists.\n");
+        fprintf(stderr, "this is a label that already exists.\n");
         break;
 
     case LABEL_TOO_LONG:
-        fprintf(stderr, "label is too long (MAX_LABEL_LENGTH: %d).\n", MAX_LABEL);
+        fprintf(stderr, "The length of the label is too long (MAX_LABEL_LENGTH: %d).\n", MAX_LABEL);
         break;
 
     case LABEL_INVALID_FIRST_CHAR:
-        fprintf(stderr, "label must start with an alphanumeric character.\n");
+        fprintf(stderr, "a label must begin with a alphanumeric character.\n");
         break;
 
     case LABEL_CANT_BE_COMMAND:
-        fprintf(stderr, "label can't have the same name as a command.\n");
+        fprintf(stderr, "a label cannot have a command name.\n");
         break;
 
     case LABEL_CANT_BE_REGISTER:
-        fprintf(stderr, "label can't have the same name as a register.\n");
+        fprintf(stderr, "a label cannot have a register nam.\n");
         break;
 
     case INVALID_LABEL_LINE:
@@ -389,43 +389,43 @@ void print_error(int line_number) {
         break;
 
     case GUIDANCE_INVALID_NUM_PARAMS:
-        fprintf(stderr, "illegal number of parameters for a directive.\n");
+        fprintf(stderr, "illegal number of parameters for a guidance.\n");
         break;
 
     case DATA_COMMAS_IN_A_ROW:
-        fprintf(stderr, "incorrect usage of commas in a .data_image directive.\n");
+        fprintf(stderr, "problem using commas in a .data_image guidance.\n");
         break;
 
     case DATA_EXPECTED_NUM:
-        fprintf(stderr, ".data_image expected a numeric parameter.\n");
+        fprintf(stderr, ".data_image expecting a numeric parameter.\n");
         break;
 
     case DATA_EXPECTED_COMMA_AFTER_NUM:
-        fprintf(stderr, ".data_image expected a comma after a numeric parameter.\n");
+        fprintf(stderr, ".data_image expecting a comma after a numeric parameter.\n");
         break;
 
     case DATA_UNEXPECTED_COMMA:
-        fprintf(stderr, ".data_image got an unexpected comma after the last number.\n");
+        fprintf(stderr, "it a unexpected comma after the last number at .data_image.\n");
         break;
 
     case STRING_TOO_MANY_OPERANDS:
-        fprintf(stderr, ".string must contain exactly one parameter.\n");
+        fprintf(stderr, ".asciz must contain only one parameter.\n");
         break;
 
     case STRING_OPERAND_NOT_VALID:
-        fprintf(stderr, ".string operand is invalid.\n");
+        fprintf(stderr, ".asciz operand is invalid.\n");
         break;
 
     case EXTERN_NO_LABEL:
-        fprintf(stderr, ".extern directive must be followed by a label.\n");
+        fprintf(stderr, ".extern guidance must be followed by a label.\n");
         break;
 
     case EXTERN_INVALID_LABEL:
-        fprintf(stderr, ".extern directive received an invalid label.\n");
+        fprintf(stderr, ".extern guidance received an invalid label.\n");
         break;
 
     case EXTERN_TOO_MANY_OPERANDS:
-        fprintf(stderr, ".extern must only have one operand that is a label.\n");
+        fprintf(stderr, ".extern can only accept one operand that must be labeled.\n");
         break;
 
     case MISSING_SYNTAX:
@@ -437,31 +437,31 @@ void print_error(int line_number) {
         break;
 
     case COMMAND_TOO_MANY_OPERANDS:
-        fprintf(stderr, "command can't have more than 2 operands.\n");
+        fprintf(stderr, "this command can't get more than 2 operands.\n");
         break;
 
     case COMMAND_INVALID_NUMBER_OF_OPERANDS:
-        fprintf(stderr, "number of operands does not match command requirements.\n");
+        fprintf(stderr, "the amount of operands does not match the command requirements.\n");
         break;
 
     case COMMAND_INVALID_OPERANDS_METHODS:
-        fprintf(stderr, "operands' addressing methods do not match command requirements.\n");
+        fprintf(stderr, "operands' addressing methods do not match to the command requirement.\n");
         break;
 
     case ENTRY_LABEL_DOES_NOT_EXIST:
-        fprintf(stderr, ".entry directive must be followed by an existing label.\n");
+        fprintf(stderr, ".entry must get an exsiting label.\n");
         break;
 
     case ENTRY_CANT_BE_EXTERN:
-        fprintf(stderr, ".entry can't apply to a label that was defined as external.\n");
+        fprintf(stderr, ".entry can't get a label that use by external.\n");
         break;
 
     case COMMAND_LABEL_DOES_NOT_EXIST:
-        fprintf(stderr, "label does not exist.\n");
+        fprintf(stderr, "label doesn't exist.\n");
         break;
 
     case CANNOT_OPEN_FILE:
-        fprintf(stderr, "there was an error while trying to open the requested file.\n");
+        fprintf(stderr, "problem opening this file.\n");
         break;
 
     case UNVALID_REG:
@@ -469,11 +469,11 @@ void print_error(int line_number) {
         break;
 
     case NO_LABEL_FOUND:
-        fprintf(stderr, "no such label found in file for this method.\n");
+        fprintf(stderr, "there isn't label in file for this method.\n");
         break;
 
     case UNVALID_LABEL:
-        fprintf(stderr, "incorrect label syntax.\n");
+        fprintf(stderr, "the syntax of this label is incorrect.\n");
         break;
     }
 
