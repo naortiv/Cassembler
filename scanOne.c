@@ -260,20 +260,20 @@ int handle_extern_guidance(char* line) {
 /* This function process commands and encodes it to words */
 int handle_command(int type, char* line) {
 
-    boolean is_first = FALSE,is_second = FALSE,is_third = FALSE; /* These booleans will tell which of the operands were received*/
-    char first_operand[20], second_operand[20], third_operand[20]; /* These strings will hold the operands */
-    int first_operand_type = 0, second_operand_type = 0, third_operand_type = 0; /* These will hold the addressing methods of the operands */
-    int first_value = 0, second_value = 0, third_value = 0; /* These will hold the register numbers */
+    boolean is_first = FALSE,is_second = FALSE,is_third = FALSE; /* sign amount of operands*/
+    char first_operand[20], second_operand[20], third_operand[20]; /* araay for the operands */
+    int first_operand_type = 0, second_operand_type = 0, third_operand_type = 0; /* addressing methods of the operands */
+    int first_value = 0, second_value = 0, third_value = 0; /* register number */
 
-    /* Trying to parse operands */
+    /* process operands */
     line = next_list_word(first_operand, line);
-    if (!end_of_line(first_operand)) /* If first operand is not empty */
+    if (!end_of_line(first_operand)) /* check if the first operand is empty */
     {
-        is_first = TRUE; /* First operand exists! */
+        is_first = TRUE; /* if there is a first operand */
         line = next_list_word(second_operand, line);
-        if (!end_of_line(second_operand)) /* If second operand (should hold temporarily a comma) is not empty */
+        if (!end_of_line(second_operand)) /* If second operand  */
         {
-            if (second_operand[0] != ',') /* A comma must separate two operands of a command */
+            if (second_operand[0] != ',') /* nust be a comma between oprands */
             {
                 error = COMMAND_UNEXPECTED_CHAR;
                 return ERROR;
@@ -281,16 +281,16 @@ int handle_command(int type, char* line) {
             else
             {
                 line = next_list_word(second_operand, line);
-                if (end_of_line(second_operand)) /* If second operand is not empty */
+                if (end_of_line(second_operand)) /* check if the second operand is not empty */
                 {
                     error = COMMAND_UNEXPECTED_CHAR;
                     return ERROR;
                 }
-                is_second = TRUE; /* Second operand exists! */
+                is_second = TRUE; /* have second operand */
                 line = next_list_word(third_operand, line);
-                if (!end_of_line(third_operand)) /* If second operand (should hold temporarily a comma) is not empty */
+                if (!end_of_line(third_operand)) 
                 {
-                    if (third_operand[0] != ',') /* A comma must separate operands of a command */
+                    if (third_operand[0] != ',') /* check have a comma between operands */
                     {
                         error = COMMAND_UNEXPECTED_CHAR;
                         return ERROR;
@@ -298,12 +298,12 @@ int handle_command(int type, char* line) {
                     else
                     {
                         line = next_list_word(third_operand, line);
-                        if (end_of_line(third_operand)) /* If Third operand is not empty */
+                        if (end_of_line(third_operand)) /* check if the third operand isn't empty */
                         {
                             error = COMMAND_UNEXPECTED_CHAR;
                             return ERROR;
                         }
-                        is_third = TRUE; /* Third operand exists! */
+                        is_third = TRUE; /*have a third operand */
                     }
                 }
             }
@@ -311,37 +311,37 @@ int handle_command(int type, char* line) {
     }
 
     line = skip_spaces(line);
-    if (!end_of_line(line)) /* If the line continues more then 3 operands */
+    if (!end_of_line(line)) /* if there more than 3 operands- error */
     {
         error = COMMAND_TOO_MANY_OPERANDS;
         return ERROR;
     }
 
     if ((is_first)) {
-        first_operand_type = find_operand_type(first_operand); /* Detect addressing method of first operand */
+        first_operand_type = find_operand_type(first_operand); /* get addressing method of first operand */
         if (first_operand_type == METHOD_REGISTER)
-            first_value = find_reg_number(first_operand); /* Finds the register number */
+            first_value = find_reg_number(first_operand); /* find register number */
     }
     if ((is_second)) {
-        second_operand_type = find_operand_type(second_operand); /* Detect addressing method of second operand */
+        second_operand_type = find_operand_type(second_operand); /* get addressing method of second operand */
         if ((second_operand_type == METHOD_REGISTER))
-            second_value = find_reg_number(second_operand); /* Finds the register number */
+            second_value = find_reg_number(second_operand); /* finds register number */
         else if ((second_operand_type == METHOD_IMMEDIATE))
             second_value = atoi(second_operand);
     }
     if ((is_third)) {
-        third_operand_type = find_operand_type(third_operand); /* Detect addressing method of second operand */
+        third_operand_type = find_operand_type(third_operand); /* get addressing method of second operand */
         if ((third_operand_type == METHOD_REGISTER))
-            third_value = find_reg_number(third_operand); /* Finds the register number */
+            third_value = find_reg_number(third_operand); /* finds register number */
     }
 
-    if (!if_error()) /* If there was no error while trying to parse addressing methods */
+    if (!if_error()) /* If there wasn't error at process addressing methods */
     {
-        if (command_accept_num_operands(type, is_first, is_second, is_third)) /* If number of operands is valid for this specific command */
+        if (command_accept_num_operands(type, is_first, is_second, is_third)) /* check if the operand amount fit to the commant */
         {
-            if (command_accept_methods(type, first_operand_type, second_operand_type, third_operand_type)) /* If addressing methods are valid for this specific command */
+            if (command_accept_methods(type, first_operand_type, second_operand_type, third_operand_type)) /* check if addressing methods are fit to this command */
             {
-                /* add machine code of the command to memory and increase ic by command size (4) */
+                /* add machine_code's command to memory and increase ic by command size (4) */
                 add_to_instructions_image(build_machine_code(type, first_operand_type, second_operand_type, third_operand_type, first_value, second_value ,third_value));
                 ic++;
             }
@@ -376,17 +376,17 @@ void add_num_to_data_image(int num,int guidance_type) {
 
 }
 
-/* This function tries to find the addressing method of a given operand and returns -1 if it was not found */
+/* This function find addressing method of the operand */
 int find_operand_type(char* operand) {
 
-    if (end_of_line(operand)) /* If end of line*/
+    if (end_of_line(operand)) /* check end of line*/
         return NO_MATCH;
 
-    /*----- label method check ----- */
-    else if (is_label(operand, FALSE)) /* Checking if it's a label when there shouldn't be a colon (:) at the end */
+    /* check label method */
+    else if (is_label(operand, FALSE))
         return METHOD_LABEL;
     
-    /*----- Register method check -----*/
+    /* check register method */
     else if (is_register(operand))
         return METHOD_REGISTER;
 
@@ -397,28 +397,28 @@ int find_operand_type(char* operand) {
     return NO_MATCH;
 }
 
-/* This function checks for the validity of given methods according to the opcode */
+/* check if the amount of operands fit to the opcode */
 boolean command_accept_num_operands(int type, boolean first, boolean second, boolean third) {
 
     switch (type)
     {
-    /* These opcodes can't have any operand */
+    /* 'stop' must be with not operand */
     case STOP:
         return !first && !second && !third;
 
-    /* These opcodes must only receive 1 operand */
+    /* opcodes must be only 1 operand */
     case JMP:
     case LA:
     case CALL:
         return first && !second && !third;
 
-    /* These opcodes must receive 2 operands */
+    /* opcodes must be 2 operands */
     case MOVE:
     case MVHI:
     case MVLO:
         return first && second && !third;
 
-    /* These opcodes must receive 3 operands */
+    /* opcodes must be 3 operands */
     case ADD:
     case SUB:
     case AND:
@@ -444,7 +444,7 @@ boolean command_accept_num_operands(int type, boolean first, boolean second, boo
     return FALSE;
 }
 
-/* This function checks for the validity of given addressing methods according to the opcode */
+/* check if the methods of the operands fit to the opcode */
 boolean command_accept_methods(int type, int first_operand_type, int second_operand_type, int third_operand_type) {
 
     switch (type)
@@ -491,13 +491,13 @@ boolean command_accept_methods(int type, int first_operand_type, int second_oper
     return FALSE;
 }
 
-/* This function encodes the machine code of the command */
+/* encodes the machine code of the command */
 unsigned int build_machine_code(int type, int first_operand_type, int second_operand_type, int third_operand_type, int first_value, int second_value, int third_value) {
     int funct = 0; 
     int opcode = 0;
     int code_word = 0;
-    opcode = find_opcode(type); /* Finds the correct opcode  */
-    funct = find_funct(type); /* Finds the correct funct   */
+    opcode = find_opcode(type); /* find opcode  */
+    funct = find_funct(type); /* find funct   */
     code_word = opcode<<26;
     /* R type */
     if (opcode <= 1) {
@@ -520,11 +520,11 @@ unsigned int build_machine_code(int type, int first_operand_type, int second_ope
             code_word |= (second_value & 0xffff); 
         }
     }
-    /*if label wait for secend scan*/
+    /*if there is a label wait for scanTwo*/
     /* J type */
     else if(opcode != 63){
         if (first_operand_type == METHOD_LABEL ){
-            code_word |= (0 & 0x1) <<25; /*if label wait for secend scan*/
+            code_word |= (0 & 0x1) <<25; /*if there is a label wait for scanTwo*/
         }
         else if(first_operand_type == METHOD_REGISTER){
             code_word |= (1 & 0x1) <<25;
@@ -535,7 +535,7 @@ unsigned int build_machine_code(int type, int first_operand_type, int second_ope
 }
 
 
-/* Finds the function number to insert in word */
+/* find the function number to insert in word */
 int find_funct(int commands) {
 
     switch (commands)
@@ -567,7 +567,7 @@ int find_funct(int commands) {
     return UNKNOWN_FUNCT;
 }
 
- /* Finds the real number of the opcode to insert in word */
+ /* find the number of the opcode to insert in word */
 int find_opcode(int type) {
     
     switch (type)
