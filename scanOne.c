@@ -6,15 +6,15 @@
 
 void scanOne(FILE* fp) {
 
-    char line[MAX_INPUT]; /* This char array contains the current line we are handling */
-    int line_number = 1;/* Line number starts from 1 */
+    char line[MAX_INPUT]; /* Array for current line*/
+    int line_number = 1;/* the first line is 1*/
     ic = 0;
     dc = 0;
     
-    while (fgets(line, MAX_INPUT, fp) != NULL) /* Read lines until end of file */
+    while (fgets(line, MAX_INPUT, fp) != NULL) /* Read line by line until end of file */
     {
-        error = EMPTY_ERROR; /* Reset the error variable at the begining of a new line*/
-        if (!ignore_line(line)) /* Ignore line if it's blank*/
+        error = EMPTY_ERROR; /* If it's new line- reset the error variable*/
+        if (!ignore_line(line)) /* If it's blank line- skip*/
             line_first_scan(line);
         if (if_error()) {
             error_exist = TRUE; /* There was at least one error through all the program */
@@ -25,79 +25,79 @@ void scanOne(FILE* fp) {
     offset_address(symbols_table,ic*4+DEFAULT_IC,TRUE);
   } 
 
-/* The function that reads each line and checks it */
+/*This function reads each line and checks it */
 void  line_first_scan(char* line) {
 
-    /* Initializing variables for the type of the guidance/command */
+    /* Variables for the type of the guidance/command */
     int guidance_type = UNKNOWN_TYPE;
     int command_type = UNKNOWN_COMMAND;
-    boolean label = FALSE; /* This variable will hold TRUE if a label exists in this line */
+    boolean label = FALSE; /* If there is a labal in this line, this variable will be TRUE */
     labelPtr label_node = NULL; /* This variable holds optional label in case we need to create it */
-    char current_word[MAX_INPUT]; /* This string will hold the current word if it fined */
+    char current_word[MAX_INPUT]; /* This array storage the current word if it exsiting */
 
-    /* Beginning to parse a line */
-    line = skip_spaces(line);/* Skip all spaces */
-    if (end_of_line(line)) return;/* Starts next row in case the row is empty */
+    /*process line */
+    line = skip_spaces(line);/* Skip white space */
+    if (end_of_line(line)) return;/* if it's an empty line- skip it */
 
-    if ((isalpha(*line) == 0) && *line != '.') { /* First non-blank character must be a letter or a dot */
+    if ((isalpha(*line) == 0) && *line != '.') { /* First character must be a letter or a dot */
         error = INVALID_SYNTAX;
         return;
     }
-    copy_word(current_word, line); /* Taking the label and copy it */
+    copy_word(current_word, line); /* copy label */
 
-    if (is_label(current_word, COLON))/* Test if the first word is a label */
+    if (is_label(current_word, COLON))/* check if the first word is a label */
     {
         label = TRUE;
 
-        label_node = add_label(&symbols_table, current_word, DEFAULT_IC, FALSE, FALSE);/* Adding a new label to the Symbol table */
-        if (label_node == NULL){/* In case we didnt succeed to add the label */
+        label_node = add_label(&symbols_table, current_word, DEFAULT_IC, FALSE, FALSE);/* if it's an new label, add to the Symbol table */
+        if (label_node == NULL){/* if there is a problem to add the label */
             return;
         }
-        line = next_word(line);/* Getting the next word */
+        line = next_word(line);/* get the next word */
         if (end_of_line(line))
         {
-            error = INVALID_LABEL_LINE;/* Only label exists in line */
+            error = INVALID_LABEL_LINE;/* if the line include only label */
             return;
         }
-        copy_word(current_word, line);/* save the label and proceed after we can use it for the table */
+        copy_word(current_word, line);/* save the label and continue */
     }
 
     if (if_error())
-        return; /* In case the first pass for label search returns an error */
+        return; /* if the search for this label failed */
 
-    if ((guidance_type = find_guidance(current_word)) != NO_MATCH) /* In case the word is a guidance */
+    if ((guidance_type = find_guidance(current_word)) != NO_MATCH) /* if this word is a guidance */
     {
         if (label)
         {
-            if (guidance_type == ENTRY || guidance_type == EXTERN) { /* If the guidance is extern or entry, delet it from label table */
+            if (guidance_type == ENTRY || guidance_type == EXTERN) { /* If it is an extern or entry guidancece, delet it from label table */
                 delete_label(&symbols_table, label_node->name);
                 label = FALSE;
             }
             else {
-                /* Setting fields accordingly in label */
+                /* Setting fields label by the type*/
                 strcpy(label_node->attributes, "data");
             }
-            label_node->address = dc; /* Address of data_image label is dc */ 
+            label_node->address = dc; /* data_image address label is dc */ 
         }
         line = next_word(line);
-        handle_guidance(guidance_type, line); /* The function to handle all types of guidances */
+        handle_guidance(guidance_type, line); /* This function process all types of guidances */
     }
 
-    else if ((command_type = find_command(current_word)) != NO_MATCH) /* In case the word is a command */
+    else if ((command_type = find_command(current_word)) != NO_MATCH) /*if it's a command word */
     {        
         if (label != 0)
         {
-            /* Setting fields accordingly in label */
+            /* Setting fields label by types */
             label_node->command_line = TRUE;
             strcpy(label_node->attributes, "code");
-            label_node->address = ic*4+DEFAULT_IC;/* Address of data_image label is ic */
+            label_node->address = ic*4+DEFAULT_IC;/* data_image label address vis ic */
         }
         line = next_word(line);
-        handle_command(command_type, line);/* The function to handle all types of commands */
+        handle_command(command_type, line);/* This function process all types of commands */
 
     }
     else
-        error = MISSING_SYNTAX;/* In case a line does not have a command or a guidance */  
+        error = MISSING_SYNTAX;/* if there isn't a command or a guidance in this line*/  
 }
 
 /* This function handles guidances (.dh, .dw, .db, .asciz, .entry, .extern) and sends them to the correct functions for analizing */
